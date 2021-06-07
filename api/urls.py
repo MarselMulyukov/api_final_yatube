@@ -1,4 +1,17 @@
-from django.urls import path
+from django.urls import include, path
+from rest_framework.routers import DefaultRouter
 
+from .views import CommentViewSet, FollowViewSet, GroupViewSet, PostViewSet
+
+# Создаётся роутер
+router = DefaultRouter()
+# Связываем URL с viewset, аналогично обычному path()
+router.register(r"posts/(?P<post_id>[^/.]+)/comments",
+                CommentViewSet,
+                basename="comment")
+router.register(r"posts", PostViewSet, basename="post")
+router.register(r"follow", FollowViewSet, basename="follow")
+router.register(r"group", GroupViewSet)
 urlpatterns = [
+    path("", include(router.urls)),
 ]

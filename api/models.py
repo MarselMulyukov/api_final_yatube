@@ -4,6 +4,10 @@ from django.db import models
 User = get_user_model()
 
 
+class Group(models.Model):
+    title = models.TextField()
+
+
 class Post(models.Model):
     text = models.TextField()
     pub_date = models.DateTimeField(
@@ -12,6 +16,11 @@ class Post(models.Model):
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="posts"
     )
+    group = models.ForeignKey(
+        Group,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="posts")
 
     def __str__(self):
         return self.text
@@ -28,3 +37,17 @@ class Comment(models.Model):
     created = models.DateTimeField(
         "Дата добавления", auto_now_add=True, db_index=True
     )
+
+
+class Follow(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="follower")
+    following = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="following")
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["user", "following"],
+                                    name="unique_following"), ]
