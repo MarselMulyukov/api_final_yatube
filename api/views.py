@@ -1,5 +1,7 @@
+# from django_filters.rest_framework import 
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, permissions, viewsets
+from rest_framework.mixins import CreateModelMixin, ListModelMixin
 
 from .models import Follow, Group, Post
 from .permissions import IsOwnerOrReadOnly
@@ -8,17 +10,12 @@ from .serializers import (CommentSerializer, FollowSerializer, GroupSerializer,
 
 
 class PostViewSet(viewsets.ModelViewSet):
+    queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = (
         IsOwnerOrReadOnly,
     )
-
-    def get_queryset(self):
-        queryset = Post.objects.all()
-        group = self.request.query_params.get("group")
-        if group is not None:
-            queryset = queryset.filter(group=group)
-        return queryset
+    filterset_fields = ['group',]
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -40,7 +37,7 @@ class CommentViewSet(viewsets.ModelViewSet):
         return post.comments.all()
 
 
-class FollowViewSet(viewsets.ModelViewSet):
+class FollowViewSet(CreateModelMixin, ListModelMixin, viewsets.GenericViewSet):
     serializer_class = FollowSerializer
     permission_classes = (
         permissions.IsAuthenticated,
@@ -55,7 +52,7 @@ class FollowViewSet(viewsets.ModelViewSet):
         return serializer.save(user=self.request.user)
 
 
-class GroupViewSet(viewsets.ModelViewSet):
+class GroupViewSet(CreateModelMixin, ListModelMixin, viewsets.GenericViewSet):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
     permission_classes = (
