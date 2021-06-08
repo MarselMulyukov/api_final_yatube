@@ -1,4 +1,3 @@
-# from django_filters.rest_framework import 
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, permissions, viewsets
 from rest_framework.mixins import CreateModelMixin, ListModelMixin
@@ -15,7 +14,7 @@ class PostViewSet(viewsets.ModelViewSet):
     permission_classes = (
         IsOwnerOrReadOnly,
     )
-    filterset_fields = ['group',]
+    filterset_fields = ['group', ]
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
